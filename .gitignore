@@ -38,3 +38,8 @@ coverage/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+# Ignore generated .js files if .tsx exists
+**/*.js
+!src/**/*.js   # only if you *need* specific js files
+src/**/*.js
+
