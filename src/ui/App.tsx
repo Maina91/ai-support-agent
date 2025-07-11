@@ -1,8 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { LoginPage } from "./pages/Login";
 import { ChatPage } from './pages/ChatPage';
 import { AdminPage } from './pages/AdminPage';
 import { HumanAgentPage } from './pages/HumanAgentPage';
+import { LoginRoute } from "./routes/auth/Login";
 import './styles.css';
 
 export const App: React.FC = () => {
@@ -23,6 +25,9 @@ export const App: React.FC = () => {
                 <Link to="/agent" className="hover:underline">
                   Human Agent
                 </Link>
+                <Link to="/logout" className="hover:underline">
+                  Logout
+                </Link>
               </nav>
             </div>
           </div>
@@ -30,6 +35,8 @@ export const App: React.FC = () => {
 
         <main className="flex-1 container mx-auto p-4">
           <Routes>
+            <Route path="/login" element={<LoginPage />} />
+
             <Route path="/" element={<ChatPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/agent" element={<HumanAgentPage />} />

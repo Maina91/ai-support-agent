@@ -74,10 +74,10 @@ const configSchema = z.object({
       enabled: z.boolean().default(true),
       sentimentThreshold: z.number().min(0).max(1).default(0.3), // Low sentiment triggers handoff
       sensitiveTopics: z.array(z.string()).default([
-        "billing dispute", 
-        "refund request", 
-        "account cancellation", 
-        "legal", 
+        "billing dispute",
+        "refund request",
+        "account cancellation",
+        "legal",
         "security breach",
         "data privacy",
         "complaint"
@@ -97,6 +97,14 @@ const configSchema = z.object({
       maxRequests: z.number().int().positive().default(100),
       windowMs: z.number().int().positive().default(15 * 60 * 1000), // 15 minutes in milliseconds
     }),
+  }),
+
+  // JWT
+  jwt: z.object({
+    accessTokenSecret: z.string().min(1, "Access token secret is required"),
+    refreshTokenSecret: z.string().min(1, "Refresh token secret is required"),
+    accessTokenExpiresIn: z.string().min(1, "Access token expires in is required"),
+    refreshTokenExpiresIn: z.string().min(1, "Refresh token expires in is required"),
   }),
 });
 
@@ -152,8 +160,8 @@ const config = {
     humanHandoff: {
       enabled: process.env.HUMAN_HANDOFF_ENABLED !== 'false',
       sentimentThreshold: parseFloat(process.env.SENTIMENT_THRESHOLD || '0.3'),
-      sensitiveTopics: process.env.SENSITIVE_TOPICS ? 
-        process.env.SENSITIVE_TOPICS.split(',') : 
+      sensitiveTopics: process.env.SENSITIVE_TOPICS ?
+        process.env.SENSITIVE_TOPICS.split(',') :
         ["billing dispute", "refund request", "account cancellation", "legal", "security breach", "data privacy", "complaint"],
       notifications: {
         email: process.env.NOTIFICATION_EMAIL === 'true',
@@ -168,6 +176,12 @@ const config = {
       maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
       windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
     },
+  },
+  jwt: {
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || 'your-secret-key',
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || 'your-secret-key',
+    accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES || '15m',
+    refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES || '7d',
   },
   paths: {
     root: path.resolve(__dirname, '../..'),

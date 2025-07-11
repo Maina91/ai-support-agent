@@ -41,6 +41,7 @@ export default [
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
   },
+
   // Apply prettier config to all files
   prettierConfig,
 ];

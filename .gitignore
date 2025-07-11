@@ -43,3 +43,5 @@ coverage/
 !src/**/*.js   # only if you *need* specific js files
 src/**/*.js
 
+
+/generated/prisma

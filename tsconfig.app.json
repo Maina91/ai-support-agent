@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "outDir": "./dist",
     "rootDir": "./src",
@@ -11,14 +11,19 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "sourceMap": true,
     "declaration": true,
-    "baseUrl": ".",
+     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "noEmit": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
+
