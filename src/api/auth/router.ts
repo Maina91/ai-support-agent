@@ -3,6 +3,18 @@ import { authService } from "../../services/auth/authService";
 
 const router = Router();
 
+router.post("/register", async (req, res) => {
+  try {
+    const tokens = await authService.register(req.body);
+    return res.status(201).json(tokens);
+  } catch (err: any) {
+    return res.status(400).json({
+      error: "Registration failed",
+      message: err.message,
+    });
+  }
+});
+
 router.post("/login", async (req, res) => {
   try {
     const tokens = await authService.login(req.body);

@@ -8,7 +8,7 @@ const router = express.Router();
 // Admin authentication middleware (simplified - would use JWT or similar in production)
 const authenticateAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const apiKey = req.headers['x-admin-api-key'];
-  
+
   // In a real application, use proper authentication
   if (!apiKey || apiKey !== process.env.ADMIN_API_KEY) {
     return res.status(401).json({
@@ -16,7 +16,7 @@ const authenticateAdmin = (req: express.Request, res: express.Response, next: ex
       message: 'Admin authentication required'
     });
   }
-  
+
   next();
 };
 
@@ -70,7 +70,7 @@ router.get('/tools', async (req, res) => {
  */
 router.post('/tools', validateRequest(toolSchema), async (req, res) => {
   const tool = req.body;
-  
+
   // In a real application, this would save to a database
   res.json({
     message: `Tool '${tool.name}' ${req.body.id ? 'updated' : 'created'} successfully`,
@@ -131,7 +131,7 @@ router.get('/config', (req, res) => {
       streamMode: config.openai.streamMode
     }
   };
-  
+
   res.json(safeConfig);
 });
 

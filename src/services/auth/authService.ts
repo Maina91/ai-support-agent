@@ -6,6 +6,18 @@ import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { verifyJwt } from "../../middleware/verifyJwt";
 
+
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum(["ADMIN", "USER"]),
+});
+
+async function hashPassword(password: string) {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
+}
+
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -14,6 +26,45 @@ const loginSchema = z.object({
 
 
 export const authService = {
+
+  async register(input: unknown) {
+    const parsed = registerSchema.safeParse(input);
+    if (!parsed.success) {
+      throw new Error("Invalid registration input");
+    }
+
+    const { email, password, role } = parsed.data;
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new Error("Email already registered");
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role,
+      },
+    });
+
+    const tokens = await authService.issueTokens({
+      id: newUser.id,
+      role: newUser.role,
+    });
+
+    return {
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role,
+      },
+      ...tokens,
+    };
+  },
+
   async login(input: unknown) {
     const parsed = loginSchema.safeParse(input);
     if (!parsed.success) {

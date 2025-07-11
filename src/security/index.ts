@@ -5,7 +5,6 @@ import cors from "cors";
 import {
   validateOrigin,
   sanitizeInputs,
-  validateToken,
   applyRateLimit,
 } from "../utils/middleware.js"; // adjust import path as needed
 import config from "../config/index.js";
@@ -43,5 +42,4 @@ export function setupSecurity(app: Express) {
 
   // 6. Token validation – apply **per route**, not globally
   // app.use(validateToken); ❌ Don't enable globally unless your entire API is private
-  app.use(validateToken);
 }
