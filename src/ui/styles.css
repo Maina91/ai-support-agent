@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Custom utilities */
+@layer utilities {
+  /* Code blocks in chat messages */
+  .prose code {
+    @apply bg-neutral-100 rounded px-1 py-0.5;
+  }
+
+  .prose pre {
+    @apply bg-gray-800 text-gray-100 p-4 rounded-md my-2 overflow-x-auto;
+  }
+
+  .prose pre code {
+    @apply bg-transparent text-gray-100 p-0;
+  }
+
+  /* Markdown tables */
+  .prose table {
+    @apply border-collapse w-full my-4;
+  }
+
+  .prose thead {
+    @apply bg-neutral-100;
+  }
+
+  .prose th {
+    @apply border border-gray-300 p-2 text-left;
+  }
+
+  .prose td {
+    @apply border border-gray-300 p-2;
+  }
+
+  /* Links in prose */
+  .prose a {
+    @apply text-blue-600 hover:underline;
+  }
+
+  /* Loading indicator animation */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
