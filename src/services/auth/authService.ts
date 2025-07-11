@@ -4,8 +4,7 @@ import config  from "../../config";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-import { verifyJwt } from "../../middleware/verifyJwt";
-
+import { verifyAccessToken } from "../../lib/jwt";
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -26,7 +25,6 @@ const loginSchema = z.object({
 
 
 export const authService = {
-
   async register(input: unknown) {
     const parsed = registerSchema.safeParse(input);
     if (!parsed.success) {
@@ -105,22 +103,19 @@ export const authService = {
     await redis.del(`refresh:${userId}`);
   },
 
-  async refresh(userId: string, incomingToken: string) {
+  async refresh(refreshToken: string) {
+    const payload = verifyAccessToken(refreshToken);
+    const userId = payload?.userId;
+
+    if (!userId) throw new Error("Invalid refresh token");
+
     const stored = await redis.get(`refresh:${userId}`);
-    if (!stored || stored !== incomingToken) {
-      throw new Error("Invalid or expired refresh token");
+    if (!stored || stored !== refreshToken) {
+      throw new Error("Expired or invalid token");
     }
 
-    const payload = verifyJwt(incomingToken) as any;
-
-    const newAccessToken = signAccessToken({
-      userId: payload.userId,
-      role: payload.role,
-    });
-    const newRefreshToken = signRefreshToken({
-      userId: payload.userId,
-      role: payload.role,
-    });
+    const newAccessToken = signAccessToken({ userId, role: payload.role });
+    const newRefreshToken = signRefreshToken({ userId, role: payload.role });
 
     await redis.set(
       `refresh:${userId}`,
@@ -129,7 +124,10 @@ export const authService = {
       config.redis.ttl
     );
 
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   },
 };
 

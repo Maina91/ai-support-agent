@@ -30,9 +30,17 @@ export function signRefreshToken(payload: JwtPayload): string {
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
-  return jwt.verify(token, ACCESS_SECRET) as JwtPayload;
+  try {
+    return jwt.verify(token, ACCESS_SECRET) as JwtPayload;
+  } catch {
+    throw new Error("Invalid or expired access token");
+  }
 }
 
 export function verifyRefreshToken(token: string): JwtPayload {
-  return jwt.verify(token, REFRESH_SECRET) as JwtPayload;
+  try {
+    return jwt.verify(token, REFRESH_SECRET) as JwtPayload;
+  } catch {
+    throw new Error("Invalid or expired refresh token");
+  }
 }
