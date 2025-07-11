@@ -1,9 +1,15 @@
 "use client";
 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import axios from "axios";
+import { z } from "zod";
+import { useAuth } from "../../context/AuthContext";
+
 import { Button } from "../ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -12,98 +18,121 @@ import {
 } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner"; // optional: for toasts
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum(["USER", "AGENT", "ADMIN"]),
+});
 
 export function LoginForm() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    role: "USER",
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
-    const handleLogin = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoading(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-      try {
-        const response = await axios.post(
-          import.meta.env.VITE_API_BASE_URL + "/auth/login",
-          { email, password },
-          { headers: { "Content-Type": "application/json" } }
-        );
+    const parsed = loginSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error("Please fill all fields correctly");
+      setLoading(false);
+      return;
+    }
 
-        const { token } = response.data;
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+        parsed.data,
+        {
+          withCredentials: true, // for HttpOnly cookies
+        }
+      );
 
-        localStorage.setItem("token", token);
+      setUser(res.data.user); // store in context
+      toast.success("Logged in successfully");
 
-        toast.success("Logged in successfully");
-        navigate("/chat");
-      } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Login failed");
-      } finally {
-        setLoading(false);
-      }
-    };
+      const destination = res.data.user.role === "ADMIN" ? "/admin" : "/chat";
+      navigate(destination);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
-        <CardAction>
-          <Button variant="link">Sign Up</Button>
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                required
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+      <form onSubmit={handleLogin}>
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Access your support dashboard</CardDescription>
+        </CardHeader>
+
+        <CardContent className="flex flex-col gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
           </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </Button>
-        <Button variant="outline" className="w-full">
-          Login with Google
-        </Button>
-      </CardFooter>
+
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="role">Login as</Label>
+            <Select
+              defaultValue="USER"
+              onValueChange={(val) => setForm({ ...form, role: val })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USER">User</SelectItem>
+                <SelectItem value="ADMIN">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+
+        <CardFooter className="flex-col gap-2">
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+          <Button variant="outline" className="w-full" type="button">
+            Login with Google
+          </Button>
+        </CardFooter>
+      </form>
     </Card>
   );
 }

@@ -1,16 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { App } from './App.js';
-import './styles.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "./components/ui/sonner";
+import { useInitTheme } from "./hooks/useInitTheme";
+import { AuthProvider } from "./context/AuthContext";
+import App from './App';
+import "./styles/globals.css";
 
-// Get API configuration from environment
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-const adminApiKey = import.meta.env.VITE_ADMIN_API_KEY || '';
+const rootElement = document.getElementById("root")!;
 
-// Create root and render app
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App apiBaseUrl={apiBaseUrl} adminApiKey={adminApiKey} />
+    <BrowserRouter>
+      <AuthProvider>
+          <App />
+          <Toaster />
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
+
+

@@ -1,54 +1,59 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { LoginPage } from "./pages/Login";
-import { ChatPage } from './pages/ChatPage';
-import { AdminPage } from './pages/AdminPage';
-import { HumanAgentPage } from './pages/HumanAgentPage';
-import { LoginRoute } from "./routes/auth/Login";
-import './styles.css';
+import React, { Suspense } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import { Loader } from "./components/ui/Loader"; // create a spinner loader
 
-export const App: React.FC = () => {
+// Pages
+import LoginPage from "./pages/Login";
+import RegisterPage from "./pages/Register";
+const ChatPage = React.lazy(() => import("./pages/ChatPage"));
+const AdminPage = React.lazy(() => import("./pages/AdminPage"));
+const NotFound = React.lazy(() => import("./pages/NotFound"));
+
+
+
+const App = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <Loader />; // Wait for /me check
+
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col">
-        <header className="bg-blue-600 text-white">
-          <div className="container mx-auto p-4">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">AI Support Agent</h1>
-              <nav className="space-x-4">
-                <Link to="/" className="hover:underline">
-                  Chat
-                </Link>
-                <Link to="/admin" className="hover:underline">
-                  Admin
-                </Link>
-                <Link to="/agent" className="hover:underline">
-                  Human Agent
-                </Link>
-                <Link to="/logout" className="hover:underline">
-                  Logout
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </header>
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        {/* Public Route */}
+        <Route
+          path="/register"
+          element={!user ? <RegisterPage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/login"
+          element={!user ? <LoginPage /> : <Navigate to="/chat" replace />}
+        />
+        {/* Protected Routes */}
+        <Route
+          path="/chat"
+          element={user ? <ChatPage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/admin"
+          element={
+            user?.role === "ADMIN" ? (
+              <AdminPage />
+            ) : (
+              <Navigate to="/chat" replace />
+            )
+          }
+        />
 
-        <main className="flex-1 container mx-auto p-4">
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-
-            <Route path="/" element={<ChatPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/agent" element={<HumanAgentPage />} />
-          </Routes>
-        </main>
-
-        <footer className="bg-gray-100 text-gray-600 text-sm">
-          <div className="container mx-auto p-4">
-            <p className="text-center">© 2023 AI Support Agent</p>
-          </div>
-        </footer>
-      </div>
-    </BrowserRouter>
+        {/* Default + 404 */}
+        <Route
+          path="/"
+          element={<Navigate to={user ? "/chat" : "/login"} replace />}
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 };
+
+export default App;
