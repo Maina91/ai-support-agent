@@ -21,7 +21,7 @@ async function hashPassword(password: string) {
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(["ADMIN", "USER"]),
+  role: z.enum(["ADMIN", "USER", "Agent"]),
 });
 
 

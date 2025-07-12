@@ -1,3 +1,6 @@
+import { Textarea } from "../components/ui/textarea";
+import { Button } from "../components/ui/button";
+
 interface Props {
   input: string;
   onChange: (val: string) => void;
@@ -18,21 +21,20 @@ export const ChatInputBox: React.FC<Props> = ({
   waitingForAgent,
 }) => (
   <form onSubmit={onSubmit} className="max-w-3xl mx-auto border-t p-4">
-    <div className="flex">
-      <input
-        className="flex-1 border border-gray-300 rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="flex gap-2 items-end">
+
+      <Textarea
+        className="flex-1 resize-none min-h-[48px]"
         value={input}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Type your message..."
+        placeholder="Type your message here..."
         disabled={isLoading}
       />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded-r disabled:bg-blue-300"
-        disabled={isLoading}
-      >
+
+      <Button type="submit" disabled={isLoading} className="h-12">
         {isLoading ? "Sending..." : "Send"}
-      </button>
+      </Button>
+
     </div>
     {isHumanHandoffActive && (
       <div className="mt-2 p-2 text-sm bg-green-50 border border-green-200 rounded">

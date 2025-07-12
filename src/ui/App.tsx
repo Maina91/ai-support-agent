@@ -6,6 +6,7 @@ import RegisterPage from "./pages/Register";
 import { DashboardPage } from "./pages/Dashboard";
 import NotFoundPage from "./pages/NotFound";
 import ChatPage from "./pages/ChatPage";
+import AgentDashboardPage from "./pages/AgentDashboard";
 
 export default function App() {
   return (
@@ -23,6 +24,16 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/agent"
+        element={
+          <ProtectedRoute roles={["AGENT", "ADMIN"]}>
+            <AgentDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/chat"
         element={
@@ -31,7 +42,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      
+
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

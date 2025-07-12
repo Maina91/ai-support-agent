@@ -54,7 +54,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/ui/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ChartConfig,
