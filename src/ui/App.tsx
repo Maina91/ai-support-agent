@@ -4,7 +4,8 @@ import { ProtectedRoute } from "./auth/ProtectedRoute";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import { DashboardPage } from "./pages/Dashboard";
-import NotFoundPage from "./pages/NotFound"; // Optional: handle 404
+import NotFoundPage from "./pages/NotFound";
+import ChatPage from "./pages/ChatPage";
 
 export default function App() {
   return (
@@ -12,6 +13,8 @@ export default function App() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+
+      {/* Protected routes */}
       <Route
         path="/dashboard"
         element={
@@ -20,6 +23,15 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+      
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

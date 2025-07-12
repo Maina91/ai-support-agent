@@ -63,7 +63,7 @@ export function RegisterForm({
       localStorage.setItem("token", accessToken); // 🔁 Optional if using access token in cookies
 
       toast.success("Account created successfully");
-      navigate("/chat"); 
+      navigate("/chat");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Registration failed");
     } finally {
@@ -82,7 +82,7 @@ export function RegisterForm({
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="grid gap-6">
+          <CardContent className="grid gap-6 p-6">
             <div className="grid gap-3">
               <Label htmlFor="firstName">First Name</Label>
               <Input
@@ -128,6 +128,7 @@ export function RegisterForm({
                 required
               />
             </div>
+
           </CardContent>
 
           <CardFooter className="flex flex-col gap-4">
