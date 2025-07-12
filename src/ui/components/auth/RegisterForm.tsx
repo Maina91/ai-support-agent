@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import axios from "axios";
+import { api } from "../../lib/api";
 
 import { cn } from "@/lib/utils";
 import { useAuth } from "../../context/AuthContext";
@@ -58,15 +58,15 @@ export function RegisterForm({
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/auth/register`,
-        parsed.data,
-        {
-          withCredentials: true, // if setting HttpOnly token
-        }
-      );
+      const res = await api.post("/auth/register", parsed.data, {
+        withCredentials: true,
+      });
 
-      setUser(res.data.user);
+      const { user, accessToken } = res.data;
+
+      setUser(user);
+      localStorage.setItem("token", accessToken);
+
       toast.success("Registered successfully");
       navigate(form.role === "ADMIN" ? "/admin" : "/chat");
     } catch (err: any) {
