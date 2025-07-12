@@ -10,7 +10,7 @@ export default function RegisterPage() {
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          Acme Inc.
+          Maina AI Support Agent
         </a>
         <RegisterForm />
       </div>

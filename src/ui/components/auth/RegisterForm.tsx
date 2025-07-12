@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { api } from "../../lib/api";
-
-import { cn } from "@/lib/utils";
+import api from "../../api/client";
 import { useAuth } from "../../auth/AuthProvider";
 
+import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -20,18 +19,13 @@ import {
 } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
+// ✅ Professional Zod schema
 const registerSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.string().email(),
-  password: z.string().min(6),
-  role: z.enum(["USER", "AGENT", "ADMIN"]),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export function RegisterForm({
@@ -39,9 +33,10 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
-    role: "USER",
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -49,26 +44,26 @@ export function RegisterForm({
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const parsed = registerSchema.safeParse(form);
     if (!parsed.success) {
-      toast.error("Invalid input");
+      toast.error("Please fill all fields correctly");
       return;
     }
 
     setLoading(true);
-
     try {
       const res = await api.post("/auth/register", parsed.data, {
-        withCredentials: true,
+        withCredentials: true, // ✅ if you're using cookies
       });
 
       const { user, accessToken } = res.data;
 
       setUser(user);
-      localStorage.setItem("token", accessToken);
+      localStorage.setItem("token", accessToken); // 🔁 Optional if using access token in cookies
 
-      toast.success("Registered successfully");
-      navigate(form.role === "ADMIN" ? "/admin" : "/chat");
+      toast.success("Account created successfully");
+      navigate("/chat"); 
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Registration failed");
     } finally {
@@ -83,11 +78,33 @@ export function RegisterForm({
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Create your account</CardTitle>
             <CardDescription>
-              Sign up to access the support system
+              Join the AI support platform — it's fast and secure
             </CardDescription>
           </CardHeader>
 
           <CardContent className="grid gap-6">
+            <div className="grid gap-3">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                value={form.firstName}
+                onChange={(e) =>
+                  setForm({ ...form, firstName: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                required
+              />
+            </div>
+
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -111,22 +128,6 @@ export function RegisterForm({
                 required
               />
             </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="role">Register as</Label>
-              <Select
-                defaultValue="USER"
-                onValueChange={(val) => setForm({ ...form, role: val })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USER">User</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </CardContent>
 
           <CardFooter className="flex flex-col gap-4">
@@ -142,17 +143,6 @@ export function RegisterForm({
           </CardFooter>
         </form>
       </Card>
-      <div className="text-muted-foreground text-center text-xs mt-2">
-        By continuing, you agree to our{" "}
-        <a href="#" className="underline underline-offset-4">
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a href="#" className="underline underline-offset-4">
-          Privacy Policy
-        </a>
-        .
-      </div>
     </div>
   );
 }

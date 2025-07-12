@@ -8,14 +8,49 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      UserRole @default(USER)
-  createdAt DateTime @default(now())
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+
+  // Profile
+  firstName     String?
+  lastName      String?
+  phone         String?       @unique
+  avatarUrl     String?
+
+  // Role & status
+  role          UserRole      @default(USER)
+  isVerified    Boolean       @default(false)
+  isActive      Boolean       @default(true)
+
+  // Auth/session metadata
+  provider      AuthProvider?
+  providerId    String?       @unique
+  lastLoginAt   DateTime?
+  lastLoginIP   String?
+
+  // Audit
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+
+  // Relations (optional placeholders)
+  // messages      Message[]
+  // sessions      Session[]
+
+  @@index([email])
+  @@index([role])
+  @@index([providerId])
 }
 
 enum UserRole {
   ADMIN
+  AGENT
   USER
+}
+
+enum AuthProvider {
+  GOOGLE
+  GITHUB
+  EMAIL
 }

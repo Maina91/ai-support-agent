@@ -7,9 +7,10 @@ import { prisma } from "../../lib/prisma";
 import { verifyAccessToken } from "../../lib/jwt";
 
 const registerSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(["ADMIN", "USER"]),
 });
 
 async function hashPassword(password: string) {
@@ -31,7 +32,7 @@ export const authService = {
       throw new Error("Invalid registration input");
     }
 
-    const { email, password, role } = parsed.data;
+    const { firstName, lastName, email, password } = parsed.data;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -42,9 +43,11 @@ export const authService = {
 
     const newUser = await prisma.user.create({
       data: {
+        firstName,
+        lastName,
         email,
         password: hashedPassword,
-        role,
+        role: "USER",
       },
     });
 
@@ -57,6 +60,8 @@ export const authService = {
       user: {
         id: newUser.id,
         email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         role: newUser.role,
       },
       ...tokens,
