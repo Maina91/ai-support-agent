@@ -1,59 +1,26 @@
-import React, { Suspense } from "react";
+// src/App.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
-import { Loader } from "./components/ui/Loader"; // create a spinner loader
-
-// Pages
+import { ProtectedRoute } from "./auth/ProtectedRoute";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
-const ChatPage = React.lazy(() => import("./pages/ChatPage"));
-const AdminPage = React.lazy(() => import("./pages/AdminPage"));
-const NotFound = React.lazy(() => import("./pages/NotFound"));
+import { DashboardPage } from "./pages/Dashboard";
+import NotFoundPage from "./pages/NotFound"; // Optional: handle 404
 
-
-
-const App = () => {
-  const { user, loading } = useAuth();
-
-  if (loading) return <Loader />; // Wait for /me check
-
+export default function App() {
   return (
-    <Suspense fallback={<Loader />}>
-      <Routes>
-        {/* Public Route */}
-        <Route
-          path="/register"
-          element={!user ? <RegisterPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/login"
-          element={!user ? <LoginPage /> : <Navigate to="/chat" replace />}
-        />
-        {/* Protected Routes */}
-        <Route
-          path="/chat"
-          element={user ? <ChatPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/admin"
-          element={
-            user?.role === "ADMIN" ? (
-              <AdminPage />
-            ) : (
-              <Navigate to="/chat" replace />
-            )
-          }
-        />
-
-        {/* Default + 404 */}
-        <Route
-          path="/"
-          element={<Navigate to={user ? "/chat" : "/login"} replace />}
-        />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+      {/* <Route path="/register" element={<RegisterPage />} /> */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
-};
-
-export default App;
+}

@@ -20,6 +20,14 @@ export function verifyJwtMiddleware(
 
   try {
     const payload = verifyAccessToken(token);
+
+    if (!payload || typeof payload !== "object" || !payload.userId) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Invalid token payload",
+      });
+    }
+    
     (req as any).user = payload;
     next();
   } catch (err) {

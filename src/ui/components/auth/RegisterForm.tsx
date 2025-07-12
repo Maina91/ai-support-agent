@@ -7,7 +7,7 @@ import { z } from "zod";
 import { api } from "../../lib/api";
 
 import { cn } from "@/lib/utils";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../auth/AuthProvider";
 
 import { Button } from "../ui/button";
 import {

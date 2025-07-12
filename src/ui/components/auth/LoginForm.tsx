@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import axios from "axios";
+import api from "../../api/client";
 import { z } from "zod";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../auth/AuthProvider";
+
 
 import { Button } from "../ui/button";
 import {
@@ -54,19 +55,17 @@ export function LoginForm() {
     }
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
-        parsed.data,
-        {
-          withCredentials: true, // for HttpOnly cookies
-        }
-      );
+      const res = await api.post("/auth/login", parsed.data, {
+        withCredentials: true,
+      });
 
-      setUser(res.data.user); // store in context
+      const { user, accessToken } = res.data;
+
+      setUser(user);
+      localStorage.setItem("token", accessToken);
+
       toast.success("Logged in successfully");
-
-      const destination = res.data.user.role === "ADMIN" ? "/admin" : "/chat";
-      navigate(destination);
+      navigate(form.role === "ADMIN" ? "/admin" : "/chat");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Invalid credentials");
     } finally {
