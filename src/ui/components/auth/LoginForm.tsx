@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import api from "../../api/client";
 import { z } from "zod";
 import { useAuth } from "../../auth/AuthProvider";
+import { Link } from "react-router-dom";
 
 
 import { Button } from "../ui/button";
@@ -158,9 +159,9 @@ export function LoginForm() {
           </Button>
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <a href="/register" className="underline underline-offset-4">
+            <Link to="/register" className="underline underline-offset-4">
               Sign up
-            </a>
+            </Link>
           </div>
         </CardFooter>
 

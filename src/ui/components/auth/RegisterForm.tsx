@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import api from "../../api/client";
 import { useAuth } from "../../auth/AuthProvider";
+import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -128,7 +129,6 @@ export function RegisterForm({
                 required
               />
             </div>
-
           </CardContent>
 
           <CardFooter className="flex flex-col gap-4">
@@ -137,9 +137,9 @@ export function RegisterForm({
             </Button>
             <div className="text-center text-sm">
               Already have an account?{" "}
-              <a href="/login" className="underline underline-offset-4">
+              <Link to="/login" className="underline underline-offset-4">
                 Login
-              </a>
+              </Link>
             </div>
           </CardFooter>
         </form>
