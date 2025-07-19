@@ -1,10 +1,10 @@
 import { redis } from "../../lib/redis";
 import { signAccessToken, signRefreshToken } from "../../lib/jwt";
-import config  from "../../config";
+import config from "../../config";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-import { verifyAccessToken } from "../../lib/jwt";
+import { verifyAccessToken, verifyRefreshToken } from "../../lib/jwt";
 
 const registerSchema = z.object({
   firstName: z.string().min(1),
@@ -90,7 +90,16 @@ export const authService = {
       id: user.id,
       role: user.role,
     });
-    return tokens;
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+      ...tokens,
+    };
   },
 
   async issueTokens(user: { id: string; role: string }) {
@@ -109,7 +118,7 @@ export const authService = {
   },
 
   async refresh(refreshToken: string) {
-    const payload = verifyAccessToken(refreshToken);
+    const payload = verifyRefreshToken(refreshToken);
     const userId = payload?.userId;
 
     if (!userId) throw new Error("Invalid refresh token");

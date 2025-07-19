@@ -40,6 +40,9 @@ app.use(
 app.use(express.json());
 app.use(applyRateLimit);
 
+// Error handler middleware
+app.use(errorHandler);
+
 // API routes
 app.use('/api', apiRouter);
 

@@ -1,7 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
-export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+interface ProtectedRouteProps {
+  children: JSX.Element;
+  roles?: string[];
+}
+
+export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div>Loading...</div>;
@@ -11,6 +16,6 @@ export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   if (roles && !roles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
-  
+
   return children;
 };

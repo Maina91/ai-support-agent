@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import config from "../config/index";
+import { v4 as uuidv4 } from "uuid";
 
 
 export interface JwtPayload {
@@ -18,7 +19,7 @@ if (!ACCESS_SECRET || !REFRESH_SECRET) {
 
 
 export function signAccessToken(payload: JwtPayload): string {
-  return jwt.sign(payload, ACCESS_SECRET, {
+  return jwt.sign({ ...payload, jti: uuidv4() }, ACCESS_SECRET, {
     expiresIn: ACCESS_EXPIRES,
   });
 }
