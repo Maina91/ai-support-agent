@@ -15,15 +15,13 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "declaration": true,
-     "baseUrl": ".",
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
 

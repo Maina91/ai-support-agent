@@ -7,7 +7,13 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), tsconfigPaths()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    tsconfigPaths({
+      projects: ["./tsconfig.json", "./tsconfig.app.json", "./tsconfig.node.json"],
+    }),
+  ],
   root: ".",
   publicDir: "public",
   server: {
