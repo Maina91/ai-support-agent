@@ -1,4 +1,5 @@
 import axios from "axios";
+import { tokenStore } from "@/ui/utils/tokenStore";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
@@ -15,6 +16,14 @@ const processQueue = (error: any, token: string | null = null) => {
   });
   refreshQueue = [];
 };
+
+api.interceptors.request.use((config) => {
+  const token = tokenStore.get();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 api.interceptors.response.use(undefined, async (error) => {
   const originalRequest = error.config;
@@ -42,16 +51,17 @@ api.interceptors.response.use(undefined, async (error) => {
 
     try {
       const res = await api.post("/auth/refresh");
-      const { accessToken } = res.data;
+      const { newAccessToken } = res.data.accessToken;
 
-      localStorage.setItem("token", accessToken);
-      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-      processQueue(null, accessToken);
+      tokenStore.set(newAccessToken);
+      api.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
+      processQueue(null, newAccessToken);
 
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       return api(originalRequest);
     } catch (err) {
       processQueue(err, null);
-      localStorage.removeItem("token");
+      tokenStore.clear();
       window.location.href = "/login";
       return Promise.reject(err);
     } finally {
@@ -60,14 +70,6 @@ api.interceptors.response.use(undefined, async (error) => {
   }
 
   return Promise.reject(error);
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
 });
 
 export default api;

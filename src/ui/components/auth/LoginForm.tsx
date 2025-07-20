@@ -7,7 +7,8 @@ import api from "../../api/client";
 import { z } from "zod";
 import { useAuth } from "../../auth/AuthProvider";
 import { Link } from "react-router-dom";
-
+import { getRedirectPathForRole } from "@/ui/utils/redirectRolePath";
+import axios from "axios";
 
 import { Button } from "../ui/button";
 import {
@@ -38,11 +39,11 @@ export function LoginForm() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: "USER",
+    role: "USER", // default value
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { setUser, setAccessToken } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,18 +58,24 @@ export function LoginForm() {
 
     try {
       const res = await api.post("/auth/login", parsed.data, {
-        withCredentials: true,
+        withCredentials: true, // get refresh token from HttpOnly cookie
       });
 
       const { user, accessToken } = res.data;
 
       setUser(user);
-      localStorage.setItem("token", accessToken);
+      setAccessToken(accessToken);
 
       toast.success("Logged in successfully");
-      navigate(form.role === "ADMIN" ? "/admin" : "/chat");
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Invalid credentials");
+      navigate(getRedirectPathForRole(form.role));
+
+    } catch (err) {
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Something went wrong. Try again.";
+
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -146,11 +153,11 @@ export function LoginForm() {
               </SelectTrigger>
               <SelectContent className="w-full">
                 <SelectItem value="USER">User</SelectItem>
+                <SelectItem value="AGENT">Agent</SelectItem>
                 <SelectItem value="ADMIN">Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
         </CardContent>
 
         <CardFooter className="flex-col gap-2">
@@ -164,7 +171,6 @@ export function LoginForm() {
             </Link>
           </div>
         </CardFooter>
-
       </form>
     </Card>
   );

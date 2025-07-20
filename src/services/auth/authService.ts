@@ -77,7 +77,7 @@ export const authService = {
     const { email, password, role } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new Error("User not found");
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) throw new Error("Invalid credentials");
